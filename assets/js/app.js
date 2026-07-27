@@ -117,9 +117,9 @@ async function submitForm(form) {
 
     data.set('subject', `Новая заявка: ${service} — Forma Stekla`);
     data.set('from_name', 'Forma Stekla — заявки');
-    data.set('Дата и время', `${sentAt} (МСК)`);
-    data.set('Страница', window.location.href);
-    data.set('Источник заявки', source);
+    data.set('submitted_at', `${sentAt} (МСК)`);
+    data.set('page_url', window.location.href);
+    data.set('form_source', source);
     data.delete('started_at');
     data.delete('page_url');
 
