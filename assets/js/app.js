@@ -107,8 +107,21 @@ async function submitForm(form) {
 
   try {
     const data = new FormData(form);
-    data.set('started_at', form.dataset.startedAt || String(Date.now()));
-    data.set('page_url', window.location.href);
+    const service = String(data.get('service') || 'Без уточнения').trim();
+    const source = String(data.get('form_source') || 'Сайт').trim();
+    const sentAt = new Intl.DateTimeFormat('ru-RU', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: 'Europe/Moscow'
+    }).format(new Date());
+
+    data.set('subject', `Новая заявка: ${service} — Forma Stekla`);
+    data.set('from_name', 'Forma Stekla — заявки');
+    data.set('Дата и время', `${sentAt} (МСК)`);
+    data.set('Страница', window.location.href);
+    data.set('Источник заявки', source);
+    data.delete('started_at');
+    data.delete('page_url');
 
     const response = await fetch(form.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
     const payload = await response.json().catch(() => ({ success: false, message: 'Сервис вернул некорректный ответ.' }));
@@ -209,24 +222,3 @@ document.addEventListener('keydown', event => {
   if (event.key === 'ArrowRight') moveLightbox(1);
 });
 lightbox.addEventListener('click', event => { if (event.target === lightbox) lightbox.close(); });
-
-
-// PWA: offline shell and optional install button.
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
-}
-let deferredInstallPrompt;
-const installButton = document.getElementById('installApp');
-window.addEventListener('beforeinstallprompt', event => {
-  event.preventDefault();
-  deferredInstallPrompt = event;
-  if (installButton) installButton.hidden = false;
-});
-installButton?.addEventListener('click', async () => {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt = null;
-  installButton.hidden = true;
-});
-window.addEventListener('appinstalled', () => { if (installButton) installButton.hidden = true; });
