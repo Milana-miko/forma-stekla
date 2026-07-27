@@ -75,67 +75,6 @@ function showToast(message, type = '') {
   toastTimer = setTimeout(() => { toast.className = 'toast'; }, 5200);
 }
 
-function formatBytes(bytes) {
-  if (bytes < 1024) return `${bytes} Б`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} КБ`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
-}
-
-async function compressImage(file) {
-  if (!file.type.startsWith('image/')) return file;
-  const bitmap = await createImageBitmap(file);
-  const maxSide = 1600;
-  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
-  const width = Math.max(1, Math.round(bitmap.width * scale));
-  const height = Math.max(1, Math.round(bitmap.height * scale));
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext('2d', { alpha: false });
-  context.fillStyle = '#fff';
-  context.fillRect(0, 0, width, height);
-  context.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close?.();
-  const blob = await new Promise((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error('Не удалось обработать изображение.')), 'image/jpeg', .82));
-  const base = file.name.replace(/\.[^.]+$/, '');
-  return new File([blob], `${base}-optimized.jpg`, { type: 'image/jpeg', lastModified: Date.now() });
-}
-
-async function prepareFiles(input, summary) {
-  const selected = [...(input?.files || [])];
-  if (!selected.length) return [];
-  if (selected.length > 3) throw new Error('Можно прикрепить не более 3 файлов.');
-  const allowed = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf']);
-  if (selected.some(file => !allowed.has(file.type))) throw new Error('Разрешены только JPG, PNG, WEBP и PDF.');
-  if (summary) summary.textContent = 'Подготавливаем файлы…';
-  const prepared = [];
-  for (const file of selected) {
-    if (file.size > 4.5 * 1024 * 1024) throw new Error(`Файл «${file.name}» больше 4,5 МБ.`);
-    prepared.push(await compressImage(file));
-  }
-  const total = prepared.reduce((sum, file) => sum + file.size, 0);
-  if (total > 4.5 * 1024 * 1024) throw new Error('Общий размер файлов после обработки превышает 4,5 МБ.');
-  if (summary) summary.textContent = prepared.map(file => `${file.name} — ${formatBytes(file.size)}`).join(' · ');
-  return prepared;
-}
-
-document.querySelectorAll('input[name="attachments"]').forEach(input => {
-  input.addEventListener('change', async () => {
-    const summary = input.closest('.file-field')?.querySelector('.file-summary');
-    if (!summary) return;
-    summary.classList.remove('is-error');
-    try {
-      const files = [...input.files];
-      if (files.length > 3) throw new Error('Можно выбрать не более 3 файлов.');
-      summary.textContent = files.length ? files.map(file => `${file.name} — ${formatBytes(file.size)}`).join(' · ') : '';
-    } catch (error) {
-      summary.textContent = error.message;
-      summary.classList.add('is-error');
-      input.value = '';
-    }
-  });
-});
-
 async function submitForm(form) {
   const status = form.querySelector('.form-status');
   const button = form.querySelector('button[type="submit"]');
@@ -143,7 +82,7 @@ async function submitForm(form) {
   if (!validateForm(form)) return;
 
   if (location.protocol === 'file:') {
-    const message = 'Отправка работает после публикации сайта на Netlify. Локальный HTML можно использовать только для просмотра.';
+    const message = 'Отправка работает на опубликованном сайте. Локальный HTML можно использовать только для просмотра.';
     status.className = 'form-status error';
     status.textContent = message;
     showToast(message, 'error');
@@ -167,28 +106,20 @@ async function submitForm(form) {
   label.textContent = 'Отправляем';
 
   try {
-    const data = new FormData();
-    [...form.elements].forEach(field => {
-      if (!field.name || field.disabled || field.type === 'file' || field.type === 'submit') return;
-      if ((field.type === 'checkbox' || field.type === 'radio') && !field.checked) return;
-      data.append(field.name, field.value);
-    });
+    const data = new FormData(form);
     data.set('started_at', form.dataset.startedAt || String(Date.now()));
-    const input = form.querySelector('input[name="attachments"]');
-    const summary = input?.closest('.file-field')?.querySelector('.file-summary');
-    const files = await prepareFiles(input, summary);
-    files.forEach(file => data.append('attachments', file, file.name));
+    data.set('page_url', window.location.href);
 
     const response = await fetch(form.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
-    const payload = await response.json().catch(() => ({ ok: false, message: 'Сервис вернул некорректный ответ.' }));
-    if (!response.ok || !payload.ok) throw new Error(payload.message || 'Не удалось отправить заявку.');
+    const payload = await response.json().catch(() => ({ success: false, message: 'Сервис вернул некорректный ответ.' }));
+    if (!response.ok || !payload.success) throw new Error(payload.message || 'Не удалось отправить заявку.');
+    const successMessage = 'Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.';
     status.className = 'form-status success';
-    status.textContent = payload.message;
-    showToast(payload.message, 'success');
+    status.textContent = successMessage;
+    showToast(successMessage, 'success');
     localStorage.setItem('formaLastSubmit', String(Date.now()));
     form.reset();
     form.dataset.startedAt = String(Date.now());
-    if (summary) summary.textContent = '';
     if (form === modalForm) setTimeout(() => modal.close(), 2400);
   } catch (error) {
     const message = error.message || 'Не удалось отправить заявку. Позвоните нам или напишите в Telegram.';

@@ -211,13 +211,16 @@
             Свяжитесь с нами удобным способом. Мы ответим на вопросы, проконсультируем и подготовим предварительный расчет проекта.
           </p>
 <div class="contact-list">
-<a href="tel:+7916379496"><span data-icon="☎">Телефон</span><strong>+7 (916) 379-49-96</strong></a>
+<a href="tel:+79163794996"><span data-icon="☎">Телефон</span><strong>+7 (916) 379-49-96</strong></a>
 <a href="https://t.me/forma_stekla" rel="noopener noreferrer" target="_blank"><span data-icon="↗">Telegram</span><strong>@forma_stekla</strong></a>
 <a href="https://www.instagram.com/forma_stekla/" rel="noopener noreferrer" target="_blank"><span data-icon="◎">Instagram</span><strong>@forma_stekla</strong></a>
 <a href="mailto:info.forma.stekla@gmail.com"><span data-icon="@">Email</span><strong>info.forma.stekla@gmail.com</strong></a>
 </div>
 </div>
-<form class="contact-form reveal" id="contactForm" action="/.netlify/functions/submit" method="post" enctype="multipart/form-data" novalidate>
+<form class="contact-form reveal" id="contactForm" action="https://api.web3forms.com/submit" method="post" novalidate>
+<input name="access_key" value="21b915fd-41ea-4618-a0ed-00251eb845a4" type="hidden"/>
+<input name="subject" value="Новая заявка с сайта Forma Stekla" type="hidden"/>
+<input name="from_name" value="Forma Stekla — сайт" type="hidden"/>
 <input class="hp-field" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" type="text"/>
 <input name="form_source" value="Форма в разделе Контакты" type="hidden"/>
 <label><span>Ваше имя</span><input name="name" required minlength="2" maxlength="100" autocomplete="name" type="text"/></label>
@@ -235,7 +238,7 @@
 <label><span>Комментарий</span><textarea name="message" maxlength="2000" rows="4"></textarea></label>
 <label class="consent-field"><input name="consent" required type="checkbox"/><span>Я согласен(на) на обработку данных для связи по заявке.</span></label>
 <button class="button button-dark" type="submit"><span class="button-label">Отправить заявку</span></button>
-<p class="form-note">Заявка будет отправлена на email и в Telegram.</p>
+<p class="form-note">Заявка придёт на email. Фотографии можно отправить отдельно в Telegram: <a href="https://t.me/forma_stekla" target="_blank" rel="noopener noreferrer">@forma_stekla</a>.</p>
 <p class="form-status" role="status" aria-live="polite"></p>
 </form>
 </div>
@@ -252,8 +255,11 @@
 <div class="modal-content">
 <p class="eyebrow">Отправить заявку</p>
 <h2>Расскажите о проекте</h2>
-<p>Заполните короткую форму и приложите фотографию или дизайн-проект.</p>
-<form id="estimateForm" action="/.netlify/functions/submit" method="post" enctype="multipart/form-data" novalidate>
+<p>Заполните короткую форму. Фотографию или дизайн-проект можно отправить нам в Telegram после заявки.</p>
+<form id="estimateForm" action="https://api.web3forms.com/submit" method="post" novalidate>
+<input name="access_key" value="21b915fd-41ea-4618-a0ed-00251eb845a4" type="hidden"/>
+<input name="subject" value="Новая заявка с сайта Forma Stekla" type="hidden"/>
+<input name="from_name" value="Forma Stekla — сайт" type="hidden"/>
 <input class="hp-field" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" type="text"/>
 <input name="form_source" value="Модальное окно" type="hidden"/>
 <div class="form-row">
@@ -270,12 +276,7 @@
 </div>
 </fieldset>
 <label><span>Комментарий</span><textarea name="message" maxlength="2000" placeholder="Размеры, особенности помещения, пожелания" rows="4"></textarea></label>
-<label class="file-field">
-<span>Фотография или дизайн-проект</span>
-<input accept="image/jpeg,image/png,image/webp,application/pdf" name="attachments" type="file" multiple data-max-files="3"/>
-<small>До 3 файлов: JPG, PNG, WEBP или PDF. Изображения будут автоматически уменьшены перед отправкой.</small>
-<div class="file-summary" aria-live="polite"></div>
-</label>
+<p class="form-note">Фотографии и дизайн-проекты можно отправить в Telegram: <a href="https://t.me/forma_stekla" target="_blank" rel="noopener noreferrer">@forma_stekla</a>.</p>
 <label class="consent-field"><input name="consent" required type="checkbox"/><span>Я согласен(на) на обработку данных для связи по заявке.</span></label>
 <button class="button button-dark" type="submit"><span class="button-label">Отправить заявку</span></button>
 <p class="form-status" role="status" aria-live="polite"></p>
