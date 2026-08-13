@@ -546,27 +546,113 @@ input:invalid:not(:placeholder-shown), textarea:invalid:not(:placeholder-shown) 
 @media(max-width:700px){.toast{right:16px;bottom:88px}.install-app{left:16px;bottom:88px}.file-field{overflow:hidden}.file-field input[type=file]{max-width:100%}}
 
 
-/* Contacts: make the region row match Phone and Email */
-.contact-list .contact-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
+/* Privacy policy */
+.privacy-inner {
+  max-width: 900px;
+}
+.privacy h2 {
+  margin: 0 0 34px;
+  font: 600 clamp(40px, 5vw, 66px)/1.08 "Playfair Display", Georgia, serif;
+}
+.privacy-copy {
+  color: var(--muted);
+  font-size: 16px;
+}
+.privacy-copy h3 {
+  margin: 32px 0 10px;
+  color: var(--text);
+  font-size: 18px;
+}
+.privacy-copy p {
+  margin: 0 0 16px;
+}
+.privacy-copy a {
+  color: var(--accent-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.privacy-note {
+  margin-top: 34px !important;
   padding: 18px 20px;
-  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,.45);
+  font-size: 13px;
 }
 
-.contact-list .contact-item strong {
-  text-align: right;
+/* Cookie banner */
+.cookie-banner {
+  position: fixed;
+  z-index: 12000;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+}
+.cookie-banner[hidden] {
+  display: none !important;
+}
+.cookie-banner__content {
+  width: min(100%, 980px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 28px;
+  align-items: center;
+  padding: 22px 24px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 20px;
+  color: white;
+  background: rgba(31,30,28,.96);
+  box-shadow: 0 20px 60px rgba(0,0,0,.28);
+  backdrop-filter: blur(18px);
+}
+.cookie-banner strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 16px;
+}
+.cookie-banner p {
+  margin: 0;
+  color: rgba(255,255,255,.72);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.cookie-banner a {
+  color: white;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cookie-banner__actions {
+  display: flex;
+  align-items: center;
+}
+.cookie-banner .button {
+  min-width: 130px;
+  border-color: white;
+  background: white;
+  color: var(--dark);
+}
+
+.consent-field a {
+  color: var(--accent-dark);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 @media (max-width: 680px) {
-  .contact-list .contact-item {
-    display: grid;
-    gap: 4px;
+  .cookie-banner {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
   }
-
-  .contact-list .contact-item strong {
-    text-align: left;
+  .cookie-banner__content {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 18px;
+    border-radius: 16px;
+  }
+  .cookie-banner__actions,
+  .cookie-banner .button {
+    width: 100%;
   }
 }

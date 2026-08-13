@@ -236,18 +236,64 @@
 </select>
 </label>
 <label><span>Комментарий</span><textarea name="message" maxlength="2000" rows="4"></textarea></label>
-<label class="consent-field"><input name="consent" required type="checkbox"/><span>Я согласен(на) на обработку данных для связи по заявке.</span></label>
+<label class="consent-field"><input name="consent" required type="checkbox"/><span>Я согласен(на) на обработку персональных данных для связи по заявке и ознакомлен(а) с <a href="#privacy-policy">Политикой конфиденциальности</a>.</span></label>
 <button class="button button-dark" type="submit"><span class="button-label">Отправить заявку</span></button>
 <p class="form-note">Заявка придёт на email. Фотографии, чертежи и дизайн-проекты можно отправить на email: <a href="mailto:info.forma.stekla@gmail.com">info.forma.stekla@gmail.com</a>.</p>
 <p class="form-status" role="status" aria-live="polite"></p>
 </form>
 </div>
 </section>
+
+<section class="privacy section section-soft" id="privacy-policy">
+  <div class="container privacy-inner">
+    <p class="eyebrow">Правовая информация</p>
+    <h2>Политика конфиденциальности</h2>
+
+    <div class="privacy-copy">
+      <p>
+        Настоящая политика описывает, какие данные могут обрабатываться при использовании сайта Forma Stekla
+        и отправке заявки через формы обратной связи.
+      </p>
+
+      <h3>Какие данные мы получаем</h3>
+      <p>
+        При отправке формы пользователь может указать имя, номер телефона, выбранную услугу и комментарий.
+        Эти данные используются только для связи по заявке, консультации и подготовки предварительного расчета.
+      </p>
+
+      <h3>Как используются данные</h3>
+      <p>
+        Данные не публикуются на сайте и используются для обработки обращения пользователя.
+        Для отправки формы сайт использует сторонний сервис Web3Forms.
+      </p>
+
+      <h3>Файлы cookie и локальное хранилище</h3>
+      <p>
+        Сайт может сохранять техническую информацию в браузере пользователя, чтобы запомнить выбор
+        относительно cookie-баннера и обеспечить корректную работу интерфейса. Аналитические и рекламные
+        cookie в текущей версии сайта не используются.
+      </p>
+
+      <h3>Контакты</h3>
+      <p>
+        По вопросам обработки данных можно обратиться по адресу
+        <a href="mailto:info.forma.stekla@gmail.com">info.forma.stekla@gmail.com</a>.
+      </p>
+
+      <p class="privacy-note">
+        Эта страница является базовым шаблоном политики для сайта. Перед использованием в качестве
+        окончательного юридического документа рекомендуется проверить ее у специалиста с учетом статуса
+        владельца сайта и применимых требований законодательства.
+      </p>
+    </div>
+  </div>
+</section>
+
 </main>
 <div class="quick-contact" aria-label="Быстрая связь">
   <a class="quick-contact-link" href="tel:+79163794996" aria-label="Позвонить">☎</a>
 </div>
-<footer class="site-footer"><div class="container footer-premium"><div class="footer-intro"><a class="brand footer-brand" href="#top"><img alt="" src="assets/img/logo.svg"/><span>FORMA STEKLA</span></a><p>Изготовление зеркал, душевых перегородок и стеклянных конструкций на заказ.</p></div><div class="footer-links"><a href="tel:+79163794996">Телефон</a><a href="mailto:info.forma.stekla@gmail.com">Email</a></div><div class="footer-meta"><p>© <span id="year"></span> Forma Stekla</p><p>Москва и Московская область</p></div></div></footer>
+<footer class="site-footer"><div class="container footer-premium"><div class="footer-intro"><a class="brand footer-brand" href="#top"><img alt="" src="assets/img/logo.svg"/><span>FORMA STEKLA</span></a><p>Изготовление зеркал, душевых перегородок и стеклянных конструкций на заказ.</p></div><div class="footer-links"><a href="tel:+79163794996">Телефон</a><a href="mailto:info.forma.stekla@gmail.com">Email</a><a href="#privacy-policy">Политика конфиденциальности</a></div><div class="footer-meta"><p>© <span id="year"></span> Forma Stekla</p><p>Москва и Московская область</p></div></div></footer>
 <dialog class="estimate-modal" id="estimateModal">
 <button aria-label="Закрыть" class="modal-close" data-close-modal="" type="button">×</button>
 <div class="modal-content">
@@ -277,7 +323,7 @@
 </fieldset>
 <label><span>Комментарий</span><textarea name="message" maxlength="2000" placeholder="Размеры, особенности помещения, пожелания" rows="4"></textarea></label>
 <p class="form-note">Фотографии, чертежи и дизайн-проекты можно отправить на email: <a href="mailto:info.forma.stekla@gmail.com">info.forma.stekla@gmail.com</a>.</p>
-<label class="consent-field"><input name="consent" required type="checkbox"/><span>Я согласен(на) на обработку данных для связи по заявке.</span></label>
+<label class="consent-field"><input name="consent" required type="checkbox"/><span>Я согласен(на) на обработку персональных данных для связи по заявке и ознакомлен(а) с <a href="#privacy-policy">Политикой конфиденциальности</a>.</span></label>
 <button class="button button-dark" type="submit"><span class="button-label">Отправить заявку</span></button>
 <p class="form-status" role="status" aria-live="polite"></p>
 </form>
@@ -289,7 +335,52 @@
 <img alt="" src=""/>
 <button aria-label="Следующее фото" class="lightbox-nav lightbox-next" type="button">→</button>
 </dialog>
+
+<div class="cookie-banner" id="cookieBanner" role="dialog" aria-live="polite" aria-label="Настройки cookie" hidden>
+  <div class="cookie-banner__content">
+    <div>
+      <strong>Мы используем файлы cookie</strong>
+      <p>
+        Сайт использует только технические данные браузера, необходимые для корректной работы и запоминания
+        вашего выбора. Аналитические и рекламные cookie сейчас не используются.
+        <a href="#privacy-policy">Подробнее</a>
+      </p>
+    </div>
+    <div class="cookie-banner__actions">
+      <button class="button button-dark" id="acceptCookies" type="button">Принять</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="siteToast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+(function () {
+  const storageKey = "formaSteklaCookieConsent";
+  const banner = document.getElementById("cookieBanner");
+  const acceptButton = document.getElementById("acceptCookies");
+
+  if (!banner || !acceptButton) return;
+
+  try {
+    const consent = localStorage.getItem(storageKey);
+    if (!consent) {
+      banner.hidden = false;
+    }
+
+    acceptButton.addEventListener("click", function () {
+      localStorage.setItem(storageKey, "accepted");
+      banner.hidden = true;
+    });
+  } catch (error) {
+    banner.hidden = false;
+    acceptButton.addEventListener("click", function () {
+      banner.hidden = true;
+    });
+  }
+})();
+</script>
+
 <script src="assets/js/app.js"></script>
 </body>
 </html>
