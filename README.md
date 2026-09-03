@@ -88,3 +88,15 @@ netlify dev
 - `netlify.toml` — настройки Netlify;
 - `site.webmanifest`, `sw.js` — установка сайта и офлайн-кэш;
 - `.env.example` — список нужных секретных переменных.
+
+
+## SEO / AEO / GEO additions (2026-09-03)
+- robots.txt and sitemap.xml
+- canonical/Open Graph/Twitter metadata
+- Organization, WebSite, Service, BreadcrumbList and FAQPage JSON-LD
+- service landing pages for mirrors, shower partitions and glass constructions
+- visible FAQ content for answer engines
+- llms.txt as a supplemental machine-readable overview (not a search-engine standard)
+- privacy page and explicit form links
+- cookie accept/reject/close + reopen settings
+- Cloudflare Pages _headers
