@@ -75,6 +75,67 @@ function showToast(message, type = '') {
   toastTimer = setTimeout(() => { toast.className = 'toast'; }, 5200);
 }
 
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes} Б`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} КБ`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
+}
+
+async function compressImage(file) {
+  if (!file.type.startsWith('image/')) return file;
+  const bitmap = await createImageBitmap(file);
+  const maxSide = 1600;
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext('2d', { alpha: false });
+  context.fillStyle = '#fff';
+  context.fillRect(0, 0, width, height);
+  context.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close?.();
+  const blob = await new Promise((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error('Не удалось обработать изображение.')), 'image/jpeg', .82));
+  const base = file.name.replace(/\.[^.]+$/, '');
+  return new File([blob], `${base}-optimized.jpg`, { type: 'image/jpeg', lastModified: Date.now() });
+}
+
+async function prepareFiles(input, summary) {
+  const selected = [...(input?.files || [])];
+  if (!selected.length) return [];
+  if (selected.length > 3) throw new Error('Можно прикрепить не более 3 файлов.');
+  const allowed = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf']);
+  if (selected.some(file => !allowed.has(file.type))) throw new Error('Разрешены только JPG, PNG, WEBP и PDF.');
+  if (summary) summary.textContent = 'Подготавливаем файлы…';
+  const prepared = [];
+  for (const file of selected) {
+    if (file.size > 4.5 * 1024 * 1024) throw new Error(`Файл «${file.name}» больше 4,5 МБ.`);
+    prepared.push(await compressImage(file));
+  }
+  const total = prepared.reduce((sum, file) => sum + file.size, 0);
+  if (total > 4.5 * 1024 * 1024) throw new Error('Общий размер файлов после обработки превышает 4,5 МБ.');
+  if (summary) summary.textContent = prepared.map(file => `${file.name} — ${formatBytes(file.size)}`).join(' · ');
+  return prepared;
+}
+
+document.querySelectorAll('input[name="attachments"]').forEach(input => {
+  input.addEventListener('change', async () => {
+    const summary = input.closest('.file-field')?.querySelector('.file-summary');
+    if (!summary) return;
+    summary.classList.remove('is-error');
+    try {
+      const files = [...input.files];
+      if (files.length > 3) throw new Error('Можно выбрать не более 3 файлов.');
+      summary.textContent = files.length ? files.map(file => `${file.name} — ${formatBytes(file.size)}`).join(' · ') : '';
+    } catch (error) {
+      summary.textContent = error.message;
+      summary.classList.add('is-error');
+      input.value = '';
+    }
+  });
+});
+
 async function submitForm(form) {
   const status = form.querySelector('.form-status');
   const button = form.querySelector('button[type="submit"]');
@@ -82,7 +143,7 @@ async function submitForm(form) {
   if (!validateForm(form)) return;
 
   if (location.protocol === 'file:') {
-    const message = 'Отправка работает на опубликованном сайте. Локальный HTML можно использовать только для просмотра.';
+    const message = 'Отправка работает после публикации сайта на Netlify. Локальный HTML можно использовать только для просмотра.';
     status.className = 'form-status error';
     status.textContent = message;
     showToast(message, 'error');
@@ -106,33 +167,28 @@ async function submitForm(form) {
   label.textContent = 'Отправляем';
 
   try {
-    const data = new FormData(form);
-    const service = String(data.get('service') || 'Без уточнения').trim();
-    const source = String(data.get('form_source') || 'Сайт').trim();
-    const sentAt = new Intl.DateTimeFormat('ru-RU', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-      timeZone: 'Europe/Moscow'
-    }).format(new Date());
-
-    data.set('subject', `Новая заявка: ${service} — Forma Stekla`);
-    data.set('from_name', 'Forma Stekla — заявки');
-    data.set('submitted_at', `${sentAt} (МСК)`);
-    data.set('page_url', window.location.href);
-    data.set('form_source', source);
-    data.delete('started_at');
-    data.delete('page_url');
+    const data = new FormData();
+    [...form.elements].forEach(field => {
+      if (!field.name || field.disabled || field.type === 'file' || field.type === 'submit') return;
+      if ((field.type === 'checkbox' || field.type === 'radio') && !field.checked) return;
+      data.append(field.name, field.value);
+    });
+    data.set('started_at', form.dataset.startedAt || String(Date.now()));
+    const input = form.querySelector('input[name="attachments"]');
+    const summary = input?.closest('.file-field')?.querySelector('.file-summary');
+    const files = await prepareFiles(input, summary);
+    files.forEach(file => data.append('attachments', file, file.name));
 
     const response = await fetch(form.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
-    const payload = await response.json().catch(() => ({ success: false, message: 'Сервис вернул некорректный ответ.' }));
-    if (!response.ok || !payload.success) throw new Error(payload.message || 'Не удалось отправить заявку.');
-    const successMessage = 'Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.';
+    const payload = await response.json().catch(() => ({ ok: false, message: 'Сервис вернул некорректный ответ.' }));
+    if (!response.ok || !payload.ok) throw new Error(payload.message || 'Не удалось отправить заявку.');
     status.className = 'form-status success';
-    status.textContent = successMessage;
-    showToast(successMessage, 'success');
+    status.textContent = payload.message;
+    showToast(payload.message, 'success');
     localStorage.setItem('formaLastSubmit', String(Date.now()));
     form.reset();
     form.dataset.startedAt = String(Date.now());
+    if (summary) summary.textContent = '';
     if (form === modalForm) setTimeout(() => modal.close(), 2400);
   } catch (error) {
     const message = error.message || 'Не удалось отправить заявку. Позвоните нам или напишите в Telegram.';
@@ -222,3 +278,63 @@ document.addEventListener('keydown', event => {
   if (event.key === 'ArrowRight') moveLightbox(1);
 });
 lightbox.addEventListener('click', event => { if (event.target === lightbox) lightbox.close(); });
+
+
+// PWA: offline shell and optional install button.
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+let deferredInstallPrompt;
+const installButton = document.getElementById('installApp');
+window.addEventListener('beforeinstallprompt', event => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  if (installButton) installButton.hidden = false;
+});
+installButton?.addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  installButton.hidden = true;
+});
+window.addEventListener('appinstalled', () => { if (installButton) installButton.hidden = true; });
+
+
+// Cookie consent. Closing the banner is treated as rejection, never as consent.
+(() => {
+  const banner = document.getElementById('cookieConsent');
+  const acceptButton = document.getElementById('cookieConsentAccept');
+  const rejectButton = document.getElementById('cookieConsentReject');
+  const closeButton = document.getElementById('cookieConsentClose');
+  const settingsButton = document.getElementById('cookieSettings');
+  const storageKey = 'formaCookieConsent';
+  if (!banner) return;
+
+  const readConsent = () => {
+    try { return localStorage.getItem(storageKey); } catch { return null; }
+  };
+  const writeConsent = value => {
+    try { localStorage.setItem(storageKey, value); } catch {}
+  };
+  const finish = value => {
+    writeConsent(value);
+    banner.hidden = true;
+    document.body.classList.remove('cookie-consent-open');
+    document.dispatchEvent(new CustomEvent('forma:cookie-consent', { detail: { value } }));
+  };
+
+  if (!readConsent()) {
+    banner.hidden = false;
+    document.body.classList.add('cookie-consent-open');
+  }
+
+  acceptButton?.addEventListener('click', () => finish('accepted'));
+  rejectButton?.addEventListener('click', () => finish('rejected'));
+  closeButton?.addEventListener('click', () => finish('rejected'));
+  settingsButton?.addEventListener('click', () => {
+    banner.hidden = false;
+    document.body.classList.add('cookie-consent-open');
+    acceptButton?.focus();
+  });
+})();
